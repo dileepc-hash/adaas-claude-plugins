@@ -1,0 +1,10 @@
+{
+  "name": "adaas-connector-review",
+  "version": "0.1.0",
+  "description": "Code review plugin for DevRev AdaaS connectors with comprehensive guidelines covering all sync phases, best practices, anti-patterns, and security",
+  "author": {
+    "name": "Dileep BC",
+    "email": "dileepbc@example.com"
+  },
+  "keywords": ["devrev", "adaas", "connector", "code-review", "airsync"]
+}
