@@ -21,7 +21,6 @@
 | ------------------------------ | ---------------------- | ---------------------------------------------- |
 | Not checking adapter.isTimeout | Force terminated       | Check `!adapter.isTimeout` in loops            |
 | Manual data batching           | Unnecessary            | SDK handles batching internally                |
-| No exponential backoff         | Hits rate limits again | `delay * Math.pow(2, attempt)`                 |
 | Stopping on first item error   | One item breaks sync   | Try/catch per item, re-throw rate limits       |
 | Wrong data normalization       | Validation fails       | String IDs, RFC3339 timestamps, arrays not CSV |
 | Buffering large files          | Memory exhaustion      | Use `responseType: 'stream'`                   |

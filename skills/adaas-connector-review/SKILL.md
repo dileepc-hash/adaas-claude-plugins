@@ -1,7 +1,7 @@
 ---
 name: AdaaS Connector Review
 description: This skill should be used when the user asks to "review this connector", "check connector code", "analyze AdaaS connector", "review connector for best practices", "check connector security", "validate connector implementation", mentions "connector anti-patterns", "connector metadata extraction", "connector data extraction", "connector loading", or any DevRev AirSync/AdaaS connector review questions. Provides comprehensive code review guidelines for DevRev AdaaS connectors.
-version: 0.1.0
+version: 0.2.0
 ---
 
 # AdaaS Connector Review Guidelines
@@ -32,72 +32,52 @@ connector-name/
 
 ## Critical Constraints
 
-| Constraint         | Value                   |
-| ------------------ | ----------------------- |
-| Max execution time | 13 minutes              |
-| Soft timeout       | 10 minutes              |
-| Max state size     | 1 MB                    |
-| SDK version        | Latest (minimum 1.13.0) |
-
-## Critical Rules (MUST)
-
-These violations will break functionality:
-
-1. **Progress events have NO parameters** - `adapter.emit(EventType.Progress)` only
-2. **Single event emission per invocation** - One Done/Progress/Delay/Error only
-3. **Check `adapter.isTimeout` in loops** - Exit gracefully before timeout
-4. **initialDomainMapping required** - Must pass to `spawn()`
-5. **SDK version should be latest** - Check with `npm view @devrev/ts-adaas version`
-6. **No credentials in logs/errors/state** - Critical security violation
-7. **HTTPS only** - No HTTP connections
+| Constraint         | Value      |
+| ------------------ | ---------- |
+| Max execution time | 13 minutes |
+| Soft timeout       | 10 minutes |
+| Max state size     | 1 MB       |
+| SDK version        | Latest     |
 
 ## Review Findings Format
 
-Structure all review findings using this format:
+Structure all review findings using this simple, actionable format:
 
 ```markdown
-## [Phase/Component Name] Review
+## Review: [Connector Name]
 
-### Summary
+### Scope
 
-- Files reviewed: [count]
-- Critical issues: [count]
-- High priority: [count]
-- Improvements: [count]
+- Phases: [list of phases reviewed]
+- Files: [count]
 
-### MUST Fix (Critical Issues)
+### Address Issue
 
-**Issue: [Short title]**
+**[Issue 1 Title]**
 
 - **Location**: `file.ts:line` or `file.ts:startLine-endLine`
-- **Problem**: [What's wrong and why it matters]
-- **Impact**: [What breaks or fails]
-- **Fix**: [Specific recommendation with code example if helpful]
-- **Reference**: [Link to reference doc section if applicable]
+- **Problem**: [What's wrong]
+- **Fix**: [How to fix it]
+- **Root guideline**: [which rule/instruction flagged this error]
 
-### SHOULD Fix (High Priority)
-
-**Issue: [Short title]**
+**[Issue 2 Title]**
 
 - **Location**: `file.ts:line`
 - **Problem**: [What's wrong]
-- **Impact**: [Quality/reliability concern]
-- **Fix**: [Recommendation]
+- **Root guideline**: [which rule/instruction flagged this error]
 ```
 
-**Severity Definitions:**
+**Important:**
 
-- **MUST**: Critical - will break functionality
-- **SHOULD**: High priority - significantly impacts quality/reliability
-- **NICE-TO-HAVE**: Improvements - enhances maintainability/performance
+- Only report actionable issues that need to be fixed
+- Focus on what needs to change, not what's already correct
 
 ## Review Process
 
 1. **Identify scope**: Full review, phase-specific, security scan, or anti-pattern check
 2. **Load reference docs**: Consult appropriate phase documentation from `references/`
 3. **Read files**: Use Read tool for manifest, workers, http-client, etc.
-4. **Apply criteria**: Check MUST/SHOULD/NICE-TO-HAVE from reference docs
-5. **Format findings**: Use the findings format above
+4. **Format findings**: Use the findings format above
 
 ## Reference Documentation
 
@@ -106,6 +86,7 @@ Detailed review criteria organized by phase:
 **Project & Structure:**
 
 - `references/01-project-structure.md` - Manifest, package.json, directory structure
+- `references/manifest-reference/` - Detailed manifest.yaml configuration guides
 
 **Extraction Phases:**
 
@@ -131,24 +112,6 @@ Detailed review criteria organized by phase:
 - `references/12-security-checklist.md` - Credential security, PII handling
 - `references/common-anti-patterns.md` - Quick detection, grep commands
 
-## Quick Anti-Pattern Detection
-
-For rapid checks, use grep commands from `references/common-anti-patterns.md`:
-
-```bash
-# Multiple emits (should be 1 per file)
-grep -n "emit(" code/src/functions/extraction/workers/*.ts
-
-# Credentials in logs
-grep -n "console.log.*token\|console.log.*key" code/src/
-
-# Timeout handling
-grep -n "adapter.isTimeout" code/src/
-
-# Hardcoded delays
-grep -n "delay\|setTimeout" code/src/
-```
-
 ## Example Workflows
 
 **Full Review:**
@@ -158,14 +121,12 @@ grep -n "delay\|setTimeout" code/src/
 3. Review each worker file with corresponding phase reference
 4. Run anti-pattern grep scans
 5. Security scan with `references/12-security-checklist.md`
-6. Format findings by severity
 
 **Phase-Specific:**
 
 1. Load relevant reference (e.g., `references/03-data-extraction.md`)
 2. Read corresponding worker file
-3. Apply all MUST/SHOULD/NICE-TO-HAVE criteria
-4. Format findings
+3. Format findings
 
 **Security Audit:**
 

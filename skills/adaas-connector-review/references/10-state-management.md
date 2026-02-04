@@ -23,8 +23,37 @@ State persists pagination positions, extraction progress, and sync metadata acro
 ## SHOULD Follow
 
 - [ ] **Completion flags per item type** - `{ itemType: { completed: boolean } }`
-- [ ] **`lastSuccessfulSyncStarted` tracked** - For incremental sync
+- [ ] **`lastSuccessfulSyncStarted` tracked** - For incremental sync (TIME_SCOPED_SYNCS)
 - [ ] **Minimal state** - Only cursors/positions, not extracted data
+
+---
+
+## lastSuccessfulSyncStarted Field
+
+**Purpose:** Tracks when the last successful extraction completed, used for TIME_SCOPED_SYNCS capability.
+
+**Format:** RFC3339 timestamp string (e.g., `"2024-01-15T10:30:00.000Z"`)
+
+**When to Update:** After successful completion of data extraction phase
+
+**Usage:**
+```typescript
+interface ExtractorState {
+  // ... other fields
+  /** Timestamp of last successful sync for incremental mode */
+  lastSuccessfulSyncStarted?: string; // RFC3339 format
+}
+
+// Update after successful extraction
+adapter.state.lastSuccessfulSyncStarted = new Date().toISOString();
+```
+
+**Important:** Only update this field after data extraction fully succeeds. Do not update if extraction fails or times out, as this would skip data in next incremental sync.
+
+**TIME_SCOPED_SYNCS Integration:**
+- Used when `reset_extract_from` is `false` or absent
+- Ignored when `reset_extract_from` is `true`
+- Should always be set after initial sync to enable incremental syncs
 
 ---
 
@@ -39,7 +68,7 @@ interface ExtractorState {
   /** Comment extraction state - parentIndex tracks which issue */
   comments: { completed: boolean; parentIndex?: number };
   /** Timestamp of last successful sync for incremental mode */
-  lastSuccessfulSyncStarted?: string;
+  lastSuccessfulSyncStarted?: string; // RFC3339 format
 }
 
 const initialExtractorState: ExtractorState = {

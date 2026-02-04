@@ -60,6 +60,8 @@ This document serves as a comprehensive guide for reviewing DevRev AirSync conne
 
 | Document                                                       | Description                           |
 | -------------------------------------------------------------- | ------------------------------------- |
+| [00-manifest-reference.md](./00-manifest-reference.md)         | Manifest overview and quick reference |
+| [manifest-reference/](./manifest-reference/)                   | Detailed manifest.yaml configuration  |
 | [01-project-structure.md](./01-project-structure.md)           | Project structure and manifest review |
 | [02-metadata-extraction.md](./02-metadata-extraction.md)       | Metadata extraction phase             |
 | [03-data-extraction.md](./03-data-extraction.md)               | Data extraction phase                 |
@@ -73,6 +75,17 @@ This document serves as a comprehensive guide for reviewing DevRev AirSync conne
 | [11-error-handling.md](./11-error-handling.md)                 | Error handling patterns               |
 | [12-security-checklist.md](./12-security-checklist.md)         | Security considerations               |
 | [common-anti-patterns.md](./common-anti-patterns.md)           | Common mistakes to avoid              |
+
+### Manifest Reference Subdirectory
+
+The `manifest-reference/` subdirectory provides focused guides on manifest.yaml configuration:
+
+| Document                                                                      | Description                           |
+| ----------------------------------------------------------------------------- | ------------------------------------- |
+| [01-authentication.md](./manifest-reference/01-authentication.md)             | Secret, OAuth2, Keyrings V2 patterns  |
+| [02-configuration.md](./manifest-reference/02-configuration.md)               | Functions, imports, inputs, hooks     |
+| [03-anti-patterns.md](./manifest-reference/03-anti-patterns.md)               | Common manifest mistakes              |
+| [04-validation.md](./manifest-reference/04-validation.md)                     | Final validation checklist            |
 
 ## Quick Reference: Runtime Constraints
 

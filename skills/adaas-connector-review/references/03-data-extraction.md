@@ -42,7 +42,8 @@ The data extraction phase retrieves items from the external system and uploads t
 
 - [ ] **Handles rate limiting gracefully** - Emits Delay event with backoff time
 - [ ] **Uses pagination with reasonable batch sizes** - Typically 50-100 items
-- [ ] **Tracks last successful sync timestamp** - For incremental sync
+- [ ] **Handles `extract_from` and `reset_extract_from` parameters** - Required for TIME_SCOPED_SYNCS
+- [ ] **Tracks last successful sync timestamp in state** - Updates after successful extraction
 - [ ] **Distinguishes initial vs incremental sync** - Different extraction logic
 - [ ] **Saves state before timeout** - Via `adapter.state` updates
 - [ ] **Handles empty results gracefully** - No errors on empty pages
@@ -53,8 +54,117 @@ The data extraction phase retrieves items from the external system and uploads t
 
 - [ ] Configurable batch sizes
 - [ ] Extraction statistics/metrics
-- [ ] Support for time-scoped syncs (`extract_from` parameter)
 - [ ] Parallel extraction of independent item types
+
+---
+
+## TIME_SCOPED_SYNCS Implementation
+
+### Overview
+
+TIME_SCOPED_SYNCS capability enables custom timestamp control for data extraction. When enabled in manifest, the extraction logic must handle two optional parameters:
+
+- **`extract_from`**: RFC3339 timestamp for extraction starting point (both initial and incremental)
+- **`reset_extract_from`**: Boolean flag (incremental only) to control re-extraction behavior
+
+### Implementation Pattern
+
+**Complete Example:**
+
+```typescript
+import { EventType, SyncMode } from "@devrev/ts-adaas";
+
+async function extractData(adapter: Adapter) {
+  // Extract time-scoped parameters
+  const { reset_extract_from, extract_from } =
+    adapter.event.payload.event_context;
+  const mode = adapter.event.payload.event_context.mode;
+
+  let startTimestamp: string | undefined;
+
+  // Determine starting timestamp based on mode and parameters
+  if (mode === SyncMode.INITIAL) {
+    // Initial sync: Use extract_from if provided
+    startTimestamp = extract_from;
+    if (startTimestamp) {
+      console.log(`Initial sync from timestamp: ${startTimestamp}`);
+    } else {
+      console.log("Initial sync: extracting all data");
+    }
+  } else if (mode === SyncMode.INCREMENTAL) {
+    // Incremental sync: Check reset flag
+    if (reset_extract_from) {
+      // Reset requested: Use extract_from or extract all
+      startTimestamp = extract_from;
+      console.log(
+        `Reset flag true. Starting from: ${startTimestamp || "beginning"}`
+      );
+    } else {
+      // Normal incremental: Use last successful sync time
+      startTimestamp = adapter.state.lastSuccessfulSyncStarted;
+      console.log(`Incremental sync from: ${startTimestamp}`);
+    }
+  }
+
+  // Fetch data with timestamp filter
+  const items = startTimestamp
+    ? await client.getItemsModifiedSince(startTimestamp)
+    : await client.getAllItems();
+
+  // Emit items...
+  for (const item of items) {
+    await adapter.emit(transformItem(item));
+  }
+}
+```
+
+### When to Reset Extraction Time
+
+The `reset_extract_from` flag enables these scenarios:
+
+1. **Manual Re-sync**: User wants to re-extract data from specific point
+2. **Error Recovery**: Previous sync failed and needs restart from known-good timestamp
+3. **Schema Changes**: External system changed and requires re-extraction
+4. **Data Correction**: Issues found in previously synced data
+
+### Timestamp Format
+
+All timestamps must be **RFC3339 format**:
+
+- Format: `YYYY-MM-DDTHH:mm:ss.sssZ`
+- Example: `2024-01-15T10:30:00.000Z`
+- Always UTC timezone
+
+### State Management
+
+Update `lastSuccessfulSyncStarted` after successful extraction:
+
+```typescript
+// After successful extraction phase
+adapter.state.lastSuccessfulSyncStarted = new Date().toISOString();
+```
+
+### API Integration Examples
+
+Different APIs have different timestamp parameter names:
+
+**REST with query parameter:**
+
+```typescript
+const params = startTimestamp ? { updated_since: startTimestamp } : {};
+const response = await client.get("/api/items", { params });
+```
+
+**GraphQL with variable:**
+
+```typescript
+const query = `
+  query GetItems($updatedSince: DateTime) {
+    items(updatedSince: $updatedSince) { id, title }
+  }
+`;
+const variables = startTimestamp ? { updatedSince: startTimestamp } : {};
+```
 
 ---
 
@@ -111,6 +221,12 @@ Q3: Incremental Sync Support
     - Is lastSuccessfulSyncStarted used?
     - Does extraction filter by modified_date?
     - Are deleted items handled?
+
+Q7: Is TIME_SCOPED_SYNCS properly implemented?
+    - Does it check `reset_extract_from` flag in incremental mode?
+    - Does it use `extract_from` when provided?
+    - Does it fall back to `lastSuccessfulSyncStarted` for normal incremental?
+    - Are timestamps in RFC3339 format?
 
 Q4: Rate Limiting
     - Is rate limit response detected (429 status)?

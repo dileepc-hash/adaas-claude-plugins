@@ -23,8 +23,6 @@
 ### MUST Follow
 
 - [ ] **No PII logged** - No emails, names, passwords, tokens
-- [ ] **Input validation** - Don't trust external API responses
-- [ ] **No arbitrary code execution** - Never `eval()` external data
 
 ### SHOULD Follow
 
@@ -54,5 +52,4 @@ Q1: Could credentials be leaked in logs or errors?
 Q2: Is HTTPS enforced for all external calls?
 Q3: Are credentials passed in headers (not URLs)?
 Q4: Is state free of credentials?
-Q5: Is external API data validated before use?
 ```

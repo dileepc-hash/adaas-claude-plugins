@@ -51,6 +51,25 @@ Use these for proper UI translation when external system supports detecting thes
 
 ## File: `metadata-extraction.ts`
 
+### Implementation Approaches
+
+There are two common approaches to metadata extraction:
+
+1. **Static Metadata (Simple)** - Import a static JSON file directly
+
+   - Use when external system schema is fixed
+   - No API calls needed, no rate limiting concerns
+   - No error handling required beyond timeout
+   - Example: `import metadata from './external_domain_metadata.json'`
+
+2. **Dynamic Metadata (Complex)** - Fetch metadata from external API
+   - Use when external system has custom fields, user-defined types, or configurable enums
+   - Requires API calls, rate limiting, and error handling
+   - Must handle 4xx (non-retryable) and 5xx (retryable) errors
+   - Example: Fetching custom fields, picklist values, or workflow states
+
+**Choose static approach when possible** - It's simpler, faster, and has fewer failure modes.
+
 ### MUST Follow
 
 - [ ] **Uses `processTask` from SDK** - Standard worker pattern
@@ -58,14 +77,15 @@ Use these for proper UI translation when external system supports detecting thes
 - [ ] **Pushes metadata to repo** - `adapter.getRepo('external_domain_metadata')?.push([...])`
 - [ ] **Emits single message** - Either done or error
 - [ ] **Implements `onTimeout` callback** - Handles graceful exit
-- [ ] **4xx errors emit error with message** - Client errors are non-retryable, emit error immediately (exceptions need comment explaining why)
-- [ ] **5xx errors retry with warn log** - Server errors are retryable, log warning and retry (exceptions need comment explaining why)
+- [ ] **4xx errors emit error with message** - Client errors are non-retryable, emit error immediately (exceptions need comment explaining why) - **Note:** Only applicable if fetching metadata from external API
+- [ ] **5xx errors retry with warn log** - Server errors are retryable, log warning and retry (exceptions need comment explaining why) - **Note:** Only applicable if fetching metadata from external API
+- [ ] **Error handling not required for static files** - If using static `external_domain_metadata.json` imported directly, only timeout handling is needed
 
 ### SHOULD Follow
 
-- [ ] **Fetches dynamic metadata from API** - For custom fields/enums
+- [ ] **Fetches dynamic metadata from API** - Only when external system has configurable schemas, custom fields, or user-defined types
 - [ ] **Validates metadata before pushing** - Use chef-cli patterns
-- [ ] **Uses ExtractionCommonError for special cases** - If external system supports detecting deleted/deactivated resources
+- [ ] **Uses ExtractionCommonError for special cases** - Only applicable when fetching from external API and system supports detecting deleted/deactivated resources
 - [ ] **No PII in logs** - Never log user emails, names, or sensitive data
 
 ### Nice-to-Have

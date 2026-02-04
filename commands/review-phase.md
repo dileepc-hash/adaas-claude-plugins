@@ -36,22 +36,23 @@ The connector phase to review.
 
 **Available phases:**
 
-| Phase | Files Reviewed | Focus |
-|-------|---------------|-------|
-| `project-structure` | manifest.yaml, package.json, directory structure | Configuration, dependencies, file organization |
-| `metadata-extraction` | metadata-extraction.ts, external_domain_metadata.json | Schema definition, field types, references |
-| `data-extraction` | data-extraction.ts | Pagination, state management, event emission |
-| `attachments-extraction` | attachments-extraction.ts | File streaming, progress tracking, error handling |
-| `external-sync-units` | external-sync-units.ts | Sync boundaries, organization structure |
-| `data-loading` | load-data.ts | Denormalization, item creation, error handling |
-| `attachments-loading` | load-attachments.ts | File upload, validation, retry logic |
-| `http-client` | http-client.ts | Authentication, retry logic, rate limiting |
-| `normalization` | data-normalization.ts, data-denormalization.ts | Data transformation, validation, type conversions |
-| `state-management` | All worker files | State structure, persistence, serialization |
-| `error-handling` | All worker files | Error classification, retry strategies, logging |
-| `security` | All files | Credentials, PII, HTTPS, input validation |
+| Phase                    | Files Reviewed                                        | Focus                                                                  |
+| ------------------------ | ----------------------------------------------------- | ---------------------------------------------------------------------- |
+| `project-structure`      | manifest.yaml, package.json, directory structure      | Configuration, dependencies, file organization                         |
+| `metadata-extraction`    | metadata-extraction.ts, external_domain_metadata.json | Schema definition, field types, references                             |
+| `data-extraction`        | data-extraction.ts                                    | Pagination, state management, event emission                           |
+| `attachments-extraction` | attachments-extraction.ts                             | File streaming, progress tracking, error handling                      |
+| `external-sync-units`    | external-sync-units.ts                                | Sync boundaries, organization structure                                |
+| `data-loading`           | load-data.ts                                          | Denormalization, item creation, error handling                         |
+| `attachments-loading`    | load-attachments.ts                                   | File upload, validation, retry logic                                   |
+| `http-client`            | http-client.ts                                        | Authentication, retry logic, rate limiting                             |
+| `normalization`          | data-normalization.ts, data-denormalization.ts        | Data transformation, validation, type conversions                      |
+| `state-management`       | All worker files                                      | State structure, persistence, serialization                            |
+| `error-handling`         | All worker files                                      | Error classification, retry strategies, logging                        |
+| `security`               | All files                                             | Credentials, PII, HTTPS, proper declaration of request, response types |
 
 **Examples:**
+
 ```bash
 /review-phase metadata-extraction
 /review-phase data-extraction
@@ -93,6 +94,7 @@ Read the full reference document to understand all review criteria for the phase
 Determine which files to read based on the phase:
 
 **project-structure**:
+
 - `manifest.yaml`
 - `package.json`
 - `package-lock.json` (check existence)
@@ -101,54 +103,65 @@ Determine which files to read based on the phase:
 - Directory structure via Glob
 
 **metadata-extraction**:
+
 - `code/src/functions/extraction/workers/metadata-extraction.ts`
 - `code/src/functions/extraction/index.ts`
 - `code/src/functions/external-system/types.ts`
 - `code/src/functions/external-system/external_domain_metadata.json` (if exists)
 
 **data-extraction**:
+
 - `code/src/functions/extraction/workers/data-extraction.ts`
 - `code/src/functions/extraction/index.ts`
 - `code/src/functions/external-system/types.ts`
 - `code/src/functions/external-system/http-client.ts`
 
 **attachments-extraction**:
+
 - `code/src/functions/extraction/workers/attachments-extraction.ts`
 - `code/src/functions/external-system/http-client.ts`
 
 **external-sync-units**:
+
 - `code/src/functions/extraction/workers/external-sync-units.ts`
 - `code/src/functions/external-system/http-client.ts`
 
 **data-loading**:
+
 - `code/src/functions/loading/workers/load-data.ts`
 - `code/src/functions/loading/index.ts`
 - `code/src/functions/external-system/data-denormalization.ts`
 - `code/src/functions/external-system/http-client.ts`
 
 **attachments-loading**:
+
 - `code/src/functions/loading/workers/load-attachments.ts`
 - `code/src/functions/external-system/http-client.ts`
 
 **http-client**:
+
 - `code/src/functions/external-system/http-client.ts`
 - Any imports or dependencies
 
 **normalization**:
+
 - `code/src/functions/external-system/data-normalization.ts`
 - `code/src/functions/external-system/data-denormalization.ts`
 - `code/src/functions/external-system/types.ts`
 
 **state-management**:
+
 - All worker files in `functions/extraction/workers/`
 - All worker files in `functions/loading/workers/`
 
 **error-handling**:
+
 - All worker files in `functions/extraction/workers/`
 - All worker files in `functions/loading/workers/`
 - `http-client.ts`
 
 **security**:
+
 - All files (comprehensive scan)
 - Focus on `http-client.ts`, worker files, configuration
 
@@ -173,6 +186,7 @@ Be thorough - this is a deep-dive review, not a quick scan.
 Use grep/search commands relevant to the phase:
 
 **For data-extraction**:
+
 ```bash
 grep -n "emit(" code/src/functions/extraction/workers/data-extraction.ts
 grep -n "onTimeout" code/src/functions/extraction/workers/data-extraction.ts
@@ -181,6 +195,7 @@ grep -n "adapter.state" code/src/functions/extraction/workers/data-extraction.ts
 ```
 
 **For security**:
+
 ```bash
 grep -rn "console.log.*token\|console.log.*key\|console.log.*password" code/src/
 grep -rn "http://" code/src/
@@ -188,6 +203,7 @@ grep -rn "Authorization.*=" code/src/
 ```
 
 **For error-handling**:
+
 ```bash
 grep -rn "catch" code/src/
 grep -rn "throw new Error" code/src/
@@ -198,139 +214,76 @@ Reference the phase documentation for complete list of relevant checks.
 
 ### Step 7: Generate Detailed Findings
 
-Structure findings as a comprehensive phase review:
+Use the **Review Findings Format** defined in SKILL.md (lines 54-79).
 
 **Format:**
-```
-## [Phase Name] Review
 
-### Overview
-- Files reviewed: [list with line counts]
-- Review date: [date]
+```markdown
+## Review: [Phase Name]
+
+### Scope
+
+- Phase: [phase name]
+- Files reviewed: [list]
 - Reference: references/[XX-phase-name].md
 
-### MUST Fix (Critical)
+### Address Issue
 
-#### 1. [Issue Title]
-**Location**: `file.ts:123-145`
+**[Issue 1 Title]**
 
-**Current Code**:
-[Show relevant code snippet]
+- **Location**: `file.ts:line` or `file.ts:startLine-endLine`
+- **Problem**: [What's wrong and why it matters]
+- **Fix**: [How to fix it with specific recommendations]
 
-**Problem**: [Detailed explanation]
+**[Issue 2 Title]**
 
-**Impact**: [Why this breaks functionality]
-
-**Fix**: [Specific recommendation with example]
-
-**Reference**: [Section from phase documentation]
-
-### SHOULD Fix (High Priority)
-
-#### 1. [Issue Title]
-**Location**: `file.ts:234`
-
-**Problem**: [Explanation]
-
-**Impact**: [Quality/reliability concern]
-
-**Fix**: [Recommendation]
-
-### NICE-TO-HAVE (Improvements)
-
-#### 1. [Enhancement Title]
-**Location**: `file.ts:345`
-
-**Current**: [What exists]
-
-**Suggestion**: [What could be better]
-
-**Benefit**: [Why this helps]
-
-### Compliance Summary
-
-**MUST criteria**: [X/Y passing]
-**SHOULD criteria**: [X/Y passing]
-**NICE-TO-HAVE**: [X/Y implemented]
-
-### Review Questions Answered
-
-[Answer each review question from the phase documentation]
-
-### Next Steps
-
-1. [Prioritized action items]
-2. [Additional recommendations]
-3. [Related phases to review]
+- **Location**: `file.ts:line`
+- **Problem**: [What's wrong and why it matters]
+- **Fix**: [How to fix it with specific recommendations]
 ```
 
-### Step 8: Provide Context and Resources
+**Important:**
 
-At the end of the review, provide:
-- Summary of phase-specific findings
-- Reference to the phase documentation used
-- Links to related phases that might need review
-- Offer to review other phases if issues found
+- Only report actionable issues that need to be fixed
+- Include code snippets in Problem section when helpful
+- Provide specific, actionable fixes
+- Reference relevant sections from phase documentation
+
+See SKILL.md for complete format specification.
 
 ## Examples
 
-### Metadata Extraction Review
+All phase reviews follow the same pattern:
+
+1. Load phase reference document
+2. Read relevant files for that phase
+3. Apply all criteria from reference
+4. Generate findings using SKILL.md format
+
+**Example:**
 
 ```
 User: /review-phase metadata-extraction
 ```
 
-**Process**:
-1. Load `references/02-metadata-extraction.md`
-2. Read `metadata-extraction.ts`, `types.ts`, `external_domain_metadata.json`
-3. Check schema_version, record types, field definitions
-4. Verify required fields, field types, references
-5. Validate enum definitions, stage diagrams
-6. Report findings with code snippets
+Process: Load `references/02-metadata-extraction.md` → Read `metadata-extraction.ts`, `types.ts`, `external_domain_metadata.json` → Check schema_version, record types, field definitions → Report findings
 
-### Security Review
-
-```
-User: /review-phase security
-```
-
-**Process**:
-1. Load `references/12-security-checklist.md`
-2. Read all connector files
-3. Scan for hardcoded credentials
-4. Check logs for PII/credentials
-5. Verify HTTPS usage
-6. Validate input validation
-7. Report security findings by category
-
-### HTTP Client Review
-
-```
-User: /review-phase http-client
-```
-
-**Process**:
-1. Load `references/08-http-client.md`
-2. Read `http-client.ts` and imports
-3. Check authentication patterns
-4. Verify retry logic and exponential backoff
-5. Validate rate limit handling
-6. Check timeout configuration
-7. Report detailed findings
+See SKILL.md "Example Workflows - Phase-Specific" for general pattern.
 
 ## Tips
 
-1. **Be comprehensive**: This is a deep review, check everything in the phase documentation
-2. **Show code**: Include relevant code snippets in findings
-3. **Explain impact**: For each issue, explain why it matters and what could go wrong
-4. **Provide examples**: Show correct implementations, not just problems
-5. **Answer questions**: Address all review questions from phase documentation
-6. **Check cross-cutting concerns**: Some phases affect multiple files
-7. **Reference documentation**: Cite specific sections from phase reference docs
+**Command-specific:**
+
+- This is a deep review - check everything in the phase documentation
+- Some phases (state-management, error-handling, security) affect multiple files
+- Reference specific sections from phase docs in findings
+
+See SKILL.md "Tips" for general review guidance.
 
 ## Error Handling
 
 If phase argument missing:
+
 ```
 Please specify which phase to review.
 
@@ -352,6 +305,7 @@ Available phases:
 ```
 
 If invalid phase:
+
 ```
 Unknown phase: [phase-name]
 
@@ -361,6 +315,7 @@ Example: /review-phase metadata-extraction
 ```
 
 If files not found:
+
 ```
 Could not find expected files for [phase] phase.
 
@@ -372,26 +327,8 @@ Please ensure you're in the connector root directory.
 
 ## Integration with Skill
 
-This command leverages the `adaas-connector-review` skill's reference documents. Each phase has a dedicated reference file with:
-- Complete checklist (MUST/SHOULD/NICE-TO-HAVE)
-- Common anti-patterns specific to the phase
-- Review questions to guide analysis
-- Examples of good and bad patterns
-
-Load and apply the complete phase reference for thorough reviews.
+See SKILL.md "Reference Documentation" section for complete list of phase-specific reference files and their contents.
 
 ## Workflow Summary
 
-1. Parse phase argument
-2. Validate phase name
-3. Load phase reference documentation
-4. Identify files to review
-5. Read all relevant files
-6. Apply complete phase checklist
-7. Run phase-specific grep checks
-8. Answer review questions
-9. Generate detailed findings with code snippets
-10. Provide compliance summary
-11. Suggest next steps
-
-Focus on depth over breadth. Provide actionable, detailed feedback for the specific phase.
+Follow Implementation Instructions steps 1-7 above for complete workflow.

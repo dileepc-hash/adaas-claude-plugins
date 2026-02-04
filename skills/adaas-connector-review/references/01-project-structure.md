@@ -59,6 +59,7 @@ connector-name/
 - [ ] **`capabilities` declared if needed** - e.g., `TIME_SCOPED_SYNCS`
 - [ ] **Service account properly named** - Descriptive name for DevRev operations
 - [ ] **No `loader_function` if loading not implemented** - Remove unused loader_function
+- [ ] **OAuth scopes have clear descriptions** - Explain what functionality each scope enables
 - [ ] Comments explaining non-obvious configurations
 - [ ] Clear, concise description
 
@@ -208,4 +209,30 @@ token_verification:
 # GOOD - Production URLs or configurable
 token_verification:
   url: https://api.service.com/verify
+```
+
+### 5. Generic OAuth Scope Descriptions
+
+```yaml
+# BAD - Generic, unclear scope descriptions
+keyring_types:
+  - id: oauth
+    type: oauth2
+    oauth_scopes:
+      - scope: read
+        description: Read access
+      - scope: write
+        description: Write access
+
+# GOOD - Specific descriptions explaining functionality
+keyring_types:
+  - id: oauth
+    type: oauth2
+    oauth_scopes:
+      - scope: tasks:read
+        description: Read tasks and task lists to sync into DevRev
+      - scope: tasks:write
+        description: Create and update tasks when syncing from DevRev
+      - scope: users:read
+        description: Read user information to map assignees
 ```
