@@ -1,4 +1,4 @@
-# Configuration
+# Configuration Patterns
 
 ## Overview
 
@@ -141,7 +141,7 @@ imports:
 3. Maintain `lastSuccessfulSyncStarted` in adapter state
 4. Pass timestamps to external API for filtering
 
-Only include if connector actually implements this logic. See [03-data-extraction.md](../03-data-extraction.md#time-scoped-syncs-implementation) for implementation details.
+Only include if connector actually implements this logic.
 
 ---
 
@@ -315,104 +315,8 @@ functions:
 
 ---
 
-## Checks
-
-### Functions
-
-- [ ] extraction function defined (always required)
-- [ ] Function names follow conventions (extraction, loading)
-- [ ] loading function only included if bidirectional sync is implemented
-- [ ] loading function removed if not used (don't leave blank)
-- [ ] Descriptions clearly explain function purpose
-- [ ] Hook functions declared if hooks are used
-
-### Imports
-
-- [ ] slug is unique and follows convention (airdrop-<service>-snap-in)
-- [ ] slug has no conflicts with existing connectors
-- [ ] display_name is user-friendly
-- [ ] description is comprehensive
-- [ ] description explains all data types synced
-- [ ] description clarifies sync direction (one-way or bidirectional)
-- [ ] extractor_function matches function name in functions section
-- [ ] loader_function matches function name (if used)
-- [ ] loader_function removed if loading not implemented
-- [ ] allowed_connection_types lists all valid keyrings
-- [ ] All referenced connection types are defined in keyring_types
-- [ ] Multiple connection types supported when possible (API key + OAuth)
-- [ ] organization_data `id` is stable for that organization (doesn't change if connecting to different workspace)
-- [ ] organization_data `id` is NOT: workspace name, public email domain (gmail.com/yahoo.com), team name, or hardcoded value
-- [ ] If using email domain: must be corporate domain with validation against public domains
-- [ ] **Verification test 1**: Could same org get different `id` values? (e.g., N workspaces) If YES → WRONG
-- [ ] **Verification test 2**: Could different orgs get same `id` value? (e.g., gmail.com) If YES → WRONG
-- [ ] If TIME_SCOPED_SYNCS enabled: extraction handles `extract_from` parameter
-- [ ] If TIME_SCOPED_SYNCS enabled: extraction handles `reset_extract_from` flag
-- [ ] If TIME_SCOPED_SYNCS enabled: state includes `lastSuccessfulSyncStarted` field
-
-### Inputs
-
-- [ ] Input names are descriptive and follow snake_case
-- [ ] field_type is correct for each input
-- [ ] default_value is set appropriately
-- [ ] Default values are safe (won't cause unintended data exposure)
-- [ ] Default values are reasonable for first-time setup
-- [ ] ui.display_name is user-friendly
-- [ ] is_required set correctly (true only for mandatory inputs)
-- [ ] Descriptions explain impact (what happens when enabled/disabled)
-- [ ] Descriptions provide examples where helpful
-- [ ] Boolean inputs have clear true/false implications
-- [ ] Enum values are complete (all valid options listed)
-- [ ] No missing common enum cases
-- [ ] Organization vs user scope is correct
-- [ ] organization inputs apply to all users
-- [ ] user inputs are per-user settings
-
-### Hooks
-
-- [ ] Hook type is valid (validate, activate, update)
-- [ ] Hook functions are declared in functions section
-- [ ] Hook functions are implemented in code
-- [ ] Hooks are only added if specific validation/initialization needed
-- [ ] Validate hook returns boolean
-- [ ] Validate hook returns clear error messages
-- [ ] Validation logic is appropriate for configuration checks
-
----
-
-## Anti-Pattern Checks for Configuration
-
-### Quick Validation Commands:
-
-```bash
-# Check function name mismatches
-diff <(grep "name:" manifest.yaml | grep -A1 "^functions:" | awk '{print $3}' | sort) \
-     <(grep -E "extractor_function:|loader_function:" manifest.yaml | awk '{print $2}' | sort)
-
-# Check missing connection types
-comm -13 \
-  <(grep "id:" manifest.yaml | grep -B2 "keyring_types:" | awk '{print $3}' | sort) \
-  <(grep "allowed_connection_types:" -A5 manifest.yaml | grep "^      -" | awk '{print $2}' | sort)
-
-# Check subdomain configuration
-if grep -q "is_subdomain: true" manifest.yaml && ! grep -q "\[SUBDOMAIN\]" manifest.yaml; then
-  echo "ERROR: is_subdomain is true but no [SUBDOMAIN] placeholder found"
-fi
-
-if grep -q "is_subdomain: false" manifest.yaml && ! grep -q "organization_data:" manifest.yaml; then
-  echo "ERROR: is_subdomain is false but no organization_data configured"
-fi
-```
-
-### Common Issues:
-- Function names don't match between functions and imports sections
-- allowed_connection_types references undefined keyrings
-- is_subdomain true without [SUBDOMAIN] placeholder
-- is_subdomain false without organization_data
-
----
-
 ## Related Documents
 
-- [01-authentication.md](./01-authentication.md) - Authentication configuration
-- [03-anti-patterns.md](./03-anti-patterns.md) - Common configuration mistakes
-- [04-validation.md](./04-validation.md) - Final validation checklist
+- auth-patterns.md - Authentication configuration
+- anti-patterns.md - Common configuration mistakes
+- validation-rules.md - Validation checklist

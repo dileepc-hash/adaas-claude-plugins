@@ -2,7 +2,7 @@
 
 ## Overview
 
-This guide identifies the most critical manifest.yaml mistakes with clear BAD/GOOD examples. For automated detection and testing, see [04-validation.md](./04-validation.md).
+This guide identifies the most critical manifest.yaml mistakes with clear BAD/GOOD examples. For automated detection and testing, see validation-rules.md.
 
 ---
 
@@ -11,35 +11,20 @@ This guide identifies the most critical manifest.yaml mistakes with clear BAD/GO
 When reviewing manifests, check anti-patterns in this order:
 
 ### CRITICAL (Always Check First):
+
 1. **Non-Unique organization_data** (#7) - Most commonly missed, causes data conflicts
 2. **Template Defaults** (#1) - Connector won't work correctly
 3. **Function Mismatches** (#2) - Breaks imports
 
 ### HIGH:
+
 4. **Missing Connection Types** (#3) - Users can't connect
 5. **Wrong is_subdomain** (#4) - Connection routing fails
 
 ### MEDIUM:
+
 6. **Invalid secret_transform** (#5) - Token verification fails
 7. **Hardcoded URLs** (#6) - Staging endpoints in production
-
-### Quick Check Script:
-
-Run this before any manifest review:
-```bash
-#!/bin/bash
-echo "=== CRITICAL Checks ==="
-grep -E "(workspace_name|team.*name)" manifest.yaml && echo "⚠️  CRITICAL: workspace/team name in organization_data"
-grep -E "(name: Todo|Todo Connector)" manifest.yaml && echo "⚠️  Template defaults found"
-
-echo "=== HIGH Priority ==="
-if grep -q "is_subdomain: true" manifest.yaml && ! grep -q "\[SUBDOMAIN\]" manifest.yaml; then
-  echo "⚠️  is_subdomain mismatch"
-fi
-
-echo "=== MEDIUM Priority ==="
-grep -i "staging\|test\|dev\|localhost" manifest.yaml | grep "url:" && echo "⚠️  Non-production URLs"
-```
 
 ### Mandatory Review Checklist:
 
@@ -53,7 +38,7 @@ When reviewing manifest.yaml, systematically verify ALL items:
 6. **Invalid secret_transform** - Test jq syntax with sample JSON
 7. **Hardcoded URLs** - Check for staging/test/dev/localhost
 
-See [04-validation.md](./04-validation.md) for detailed validation commands and implementation checks.
+See validation-rules.md for detailed validation commands and implementation checks.
 
 ---
 
@@ -245,16 +230,8 @@ secret_config:
 
 **Detection Priority: CRITICAL** - This is frequently missed in reviews.
 
-**Quick Check:**
-```bash
-# Check for workspace/team level identifiers
-grep -E "(workspace_name|team.*name)" manifest.yaml
-
-# Check if id and name use same value
-# Extract response_jq and verify id != name expression
-```
-
 **Why this matters:**
+
 - Using workspace_name means same org with multiple workspaces gets multiple IDs → data conflicts
 - Using public email domains means multiple orgs get same ID → data leakage
 - Must be stable: same org always gets same ID, even across different workspaces/teams
@@ -342,14 +319,62 @@ organization_data:
   - ✗ BAD: Workspace names/IDs, public domains, team names, user emails, hardcoded values
 
 **Tests**:
+
 - ❌ Same org gets different IDs? → WRONG
 - ❌ Different orgs get same ID? → WRONG
 - ✅ Each org always gets same unique ID? → CORRECT
 
 ---
 
+## 8. Generic OAuth Scope Descriptions
+
+Using vague, generic descriptions that don't explain what functionality each OAuth scope enables.
+
+### BAD
+
+```yaml
+scopes:
+  - name: read
+    description: Read access
+    value: "read"
+  - name: write
+    description: Write permissions
+    value: "write"
+  - name: admin
+    description: Admin access
+    value: "admin"
+```
+
+**Problem**: Users can't understand what data they're granting access to.
+
+### GOOD
+
+```yaml
+scopes:
+  - name: contacts_read
+    description: Read contact information including names, emails, and phone numbers
+    value: "crm.contacts.read"
+  - name: deals_write
+    description: Create and update deal records and their associations
+    value: "crm.deals.write"
+  - name: settings_admin
+    description: Manage account settings and user permissions
+    value: "settings.admin"
+```
+
+### Rule
+
+OAuth scope descriptions must:
+
+- Explain the specific resource being accessed
+- Describe the operations allowed
+- Be at least 5 words (with rare exceptions for obvious scopes)
+- Avoid generic terms like "access", "data", "permissions" without context
+
+---
+
 ## Related Documents
 
-- [01-authentication.md](./01-authentication.md) - Authentication configuration patterns
-- [02-configuration.md](./02-configuration.md) - Functions, imports, inputs with detailed checks
-- [04-validation.md](./04-validation.md) - Automated detection and testing commands
+- auth-patterns.md - Authentication configuration patterns
+- config-patterns.md - Functions, imports, inputs with detailed checks
+- validation-rules.md - Automated detection and testing commands

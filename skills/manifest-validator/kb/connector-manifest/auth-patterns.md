@@ -1,4 +1,4 @@
-# Authentication
+# Authentication Patterns
 
 ## Overview
 
@@ -207,6 +207,7 @@ keyring_types:
 The `is_subdomain` field determines how API URLs are constructed:
 
 - **`is_subdomain: true`** - API URLs contain organization subdomain (e.g., `org.service.com`)
+
   - Use `[SUBDOMAIN]` placeholder in URLs
   - Example: Confluence Cloud, Jira Cloud, Asana
 
@@ -261,7 +262,7 @@ organization_data:
   headers:
     Authorization: "Bearer [API_KEY]"
     Notion-Version: "2022-02-22"
-  response_jq: "{id: \"notion-org\", name: \"Notion Workspace\"}"
+  response_jq: '{id: "notion-org", name: "Notion Workspace"}'
 ```
 
 ---
@@ -397,6 +398,73 @@ scopes:
 scope_delimiter: " "
 ```
 
+### OAuth Scope Description Quality
+
+Scope descriptions must clearly explain what functionality each scope enables. Avoid generic descriptions that don't help users understand the permission.
+
+#### BAD - Generic Descriptions
+
+```yaml
+scopes:
+  - name: read
+    description: Read access # ❌ Too vague - read what?
+    value: "read"
+  - name: write
+    description: Write permissions # ❌ What can be written?
+    value: "write"
+  - name: api_access
+    description: API access # ❌ Says nothing about what's accessed
+    value: "api:access"
+  - name: data
+    description: Data # ❌ Single word, no explanation
+    value: "data:read"
+```
+
+#### GOOD - Specific Descriptions
+
+```yaml
+scopes:
+  - name: contacts_read
+    description: Read contact information including names, emails, and phone numbers
+    value: "crm.contacts.read"
+  - name: deals_write
+    description: Create and update deal records and their associations
+    value: "crm.deals.write"
+  - name: calendar_events
+    description: Access calendar events to sync meeting data
+    value: "calendar.events.readonly"
+```
+
+#### Quality Criteria
+
+A good scope description:
+
+- ✅ **Explains the resource**: What data/feature is accessed?
+- ✅ **Describes the action**: What operations are allowed?
+- ✅ **Provides context**: Why is this scope needed? (when not obvious)
+- ✅ **Is specific**: Avoid generic terms like "access", "data", "permissions"
+- ✅ **Uses full sentences**: Not just single words or short phrases
+- ✅ **Minimum 5 words**: Ensures adequate detail
+
+#### Common Mistakes
+
+1. **Too generic**: "Read access" → Should be "Read contact and company information"
+2. **Too short**: "Users" → Should be "View user profiles and permissions"
+3. **No action specified**: "Calendar data" → Should be "Read calendar events and availability"
+4. **Copy-paste from API**: "api:calls:read:basic" → Should explain what "basic" includes
+5. **Missing context**: "Write files" → Should specify where/what types
+
+#### Detection Patterns
+
+Flag descriptions containing ONLY these generic terms:
+
+- "Read access", "Write access", "Full access"
+- "Read", "Write", "Modify", "Delete" (without specifying what)
+- "Data", "API", "Access", "Permissions" (without context)
+- "Generic", "Basic", "Standard"
+- Single-word descriptions
+- Descriptions under 5 words (except for very obvious cases)
+
 ### Token Revocation (Optional)
 
 Allows users to revoke OAuth tokens when disconnecting.
@@ -414,14 +482,14 @@ revoke:
 
 ### OAuth2 Placeholders
 
-| Placeholder                      | Usage                          | Context              |
-| -------------------------------- | ------------------------------ | -------------------- |
-| `[ACCESS_TOKEN]`                 | OAuth access token             | OAuth2 keyrings      |
-| `[REFRESH_TOKEN]`                | OAuth refresh token            | OAuth2 refresh       |
-| `[CLIENT_ID]`                    | OAuth client ID                | OAuth2 authorize     |
-| `[CLIENT_SECRET]`                | OAuth client secret            | OAuth2 refresh       |
-| `[CLIENT_CREDENTIALS_BASE64]`    | Base64(client_id:client_secret)| OAuth2 Basic Auth    |
-| `[SCOPES]`                       | Space/comma-joined scopes      | OAuth2 authorize     |
+| Placeholder                   | Usage                           | Context           |
+| ----------------------------- | ------------------------------- | ----------------- |
+| `[ACCESS_TOKEN]`              | OAuth access token              | OAuth2 keyrings   |
+| `[REFRESH_TOKEN]`             | OAuth refresh token             | OAuth2 refresh    |
+| `[CLIENT_ID]`                 | OAuth client ID                 | OAuth2 authorize  |
+| `[CLIENT_SECRET]`             | OAuth client secret             | OAuth2 refresh    |
+| `[CLIENT_CREDENTIALS_BASE64]` | Base64(client_id:client_secret) | OAuth2 Basic Auth |
+| `[SCOPES]`                    | Space/comma-joined scopes       | OAuth2 authorize  |
 
 ---
 
@@ -454,71 +522,8 @@ keyrings:
 
 ---
 
-## Checks
-
-- [ ] Version is "2"
-- [ ] Name is not template default (e.g., not "Todo")
-- [ ] Name is unique and recognizable (different variants need different names)
-- [ ] Description explains what data is synced
-- [ ] Description mentions bidirectional sync if applicable
-- [ ] service_account.display_name clearly identifies the external system
-- [ ] external_system_name is unique and starts with capital letter
-- [ ] kind is "Secret" or "Oauth2" (correctly specified)
-- [ ] secret_transform uses valid jq syntax
-- [ ] secret_transform matches what the API expects (e.g., includes Base64 encoding if needed)
-- [ ] All required fields are included in secret_transform
-- [ ] Sensitive fields use input_type: password
-- [ ] is_optional set for optional credential fields
-- [ ] token_verification endpoint actually validates the token
-- [ ] token_verification returns appropriate status codes (200 for valid, 401 for invalid)
-- [ ] is_subdomain correctly reflects API URL structure (true if subdomain-based, false otherwise)
-- [ ] organization_data configured when is_subdomain is false
-- [ ] organization_data returns unique id and name
-- [ ] organization_data jq filter is correct and handles API response structure
-- [ ] All placeholders use correct format: [API_KEY], [SUBDOMAIN], [ORGANIZATION_ID]
-- [ ] For OAuth2: developer_keyrings declared
-- [ ] For OAuth2: oauth_secret references declared developer keyring
-- [ ] For OAuth2: scopes defined with clear, descriptive names
-- [ ] For OAuth2: scope descriptions explain what functionality each enables
-- [ ] For OAuth2: scopes grant minimum necessary permissions
-- [ ] For OAuth2: scope_delimiter is correct (check API docs - usually space " " or comma ",")
-- [ ] For OAuth2: auth_url and token_url are correct (verify against API docs)
-- [ ] For OAuth2: refresh configuration includes all required parameters
-- [ ] For OAuth2: all OAuth placeholders use correct format
-- [ ] For Keyrings V2: referenced keyring type exists (verify with DevRev platform team)
-- [ ] For Keyrings V2: correct scope used (organization vs user)
-
----
-
-## Anti-Pattern Checks for Authentication
-
-### Quick Validation Commands:
-
-```bash
-# Check for template defaults in keyring names
-grep -E "todo|example|template" manifest.yaml -i
-
-# Verify OAuth2 has developer_keyrings
-if grep -q "kind: \"Oauth2\"" manifest.yaml && ! grep -q "developer_keyrings:" manifest.yaml; then
-  echo "ERROR: OAuth2 configured but no developer_keyrings declared"
-fi
-
-# Check secret_transform syntax
-TRANSFORM=$(grep "secret_transform:" manifest.yaml | sed 's/.*secret_transform: //')
-if [ -n "$TRANSFORM" ]; then
-  echo '{"email":"test@example.com","token":"abc123"}' | jq "$TRANSFORM" || echo "ERROR: Invalid jq syntax"
-fi
-```
-
-### Common Issues:
-- Missing developer_keyrings for OAuth2
-- Invalid jq syntax in secret_transform
-- Template keyring names not updated
-
----
-
 ## Related Documents
 
-- [02-configuration.md](./02-configuration.md) - Functions, imports, inputs, and hooks
-- [03-anti-patterns.md](./03-anti-patterns.md) - Common authentication mistakes
-- [04-validation.md](./04-validation.md) - Final validation checklist
+- config-patterns.md - Functions, imports, inputs, and hooks
+- anti-patterns.md - Common authentication mistakes
+- validation-rules.md - Validation checklist

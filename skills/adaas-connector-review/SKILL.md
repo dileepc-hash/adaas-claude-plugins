@@ -67,17 +67,39 @@ Structure all review findings using this simple, actionable format:
 - **Root guideline**: [which rule/instruction flagged this error]
 ```
 
-**Important:**
+**CRITICAL OUTPUT RULES:**
 
-- Only report actionable issues that need to be fixed
-- Focus on what needs to change, not what's already correct
+- ❌ DO NOT include "Strengths", "Good patterns", or positive feedback sections
+- ❌ DO NOT list what's working correctly
+- ❌ DO NOT include summary statistics or counts of good/bad
+- ✅ ONLY report issues that require changes
+- ✅ Be concise - one issue per finding with location, problem, fix
+- ✅ Focus on what's broken, not what's working
+
+**Example of what NOT to do:**
+```
+✅ Strengths:
+1. Well-structured manifest
+2. Proper OAuth2 configuration
+```
+
+**Example of what TO do:**
+```
+### Address Issue
+
+**Naming Inconsistency**
+- **Location**: `manifest.yaml:14`
+- **Problem**: Developer keyring named google-drive-oauth-secret for Calendar connector
+- **Fix**: Rename to google-calendar-oauth-secret
+```
 
 ## Review Process
 
 1. **Identify scope**: Full review, phase-specific, security scan, or anti-pattern check
 2. **Load reference docs**: Consult appropriate phase documentation from `references/`
 3. **Read files**: Use Read tool for manifest, workers, http-client, etc.
-4. **Format findings**: Use the findings format above
+4. **Run mandatory checks**: For manifest reviews, follow the checklist in `references/manifest-reference/03-anti-patterns.md` (Detection Priority Guide)
+5. **Format findings**: Use the findings format above
 
 ## Reference Documentation
 
@@ -141,3 +163,4 @@ Detailed review criteria organized by phase:
 - **Be specific**: Provide file paths, line numbers, and code examples
 - **Explain impact**: Don't just list problems - explain why they matter
 - **Actionable fixes**: Give concrete recommendations, not just issues
+- **For manifest reviews**: Always consult `references/manifest-reference/03-anti-patterns.md` Detection Priority Guide

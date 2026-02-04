@@ -6,6 +6,17 @@ Automated testing and validation for manifest.yaml before deployment. For detail
 
 ---
 
+## Validation Strategy
+
+This document provides automated validation scripts. For anti-pattern detection with examples, see:
+- **Authentication issues**: [01-authentication.md](./01-authentication.md) - OAuth, secret_transform
+- **Configuration issues**: [02-configuration.md](./02-configuration.md) - Functions, subdomain, connection types
+- **All anti-patterns with priority**: [03-anti-patterns.md](./03-anti-patterns.md) - Complete list with BAD/GOOD examples
+
+Run checks in priority order: CRITICAL → HIGH → MEDIUM (see 03-anti-patterns.md Detection Priority Guide)
+
+---
+
 ## Critical Checks (Required Before Merge)
 
 These checks are mandatory and must pass before the connector can be deployed.
