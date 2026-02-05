@@ -1,0 +1,28 @@
+{
+  "name": "adaas-plugins",
+  "owner": {
+    "name": "Dileep BC",
+    "email": "dileepbc@example.com"
+  },
+  "metadata": {
+    "description": "Code review and validation plugins for DevRev AdaaS connectors",
+    "version": "0.1.0"
+  },
+  "plugins": [
+    {
+      "name": "adaas-connector-review",
+      "source": ".",
+      "description": "Code review plugin for DevRev AdaaS connectors with comprehensive guidelines covering all sync phases, best practices, anti-patterns, and security",
+      "version": "0.1.0",
+      "author": {
+        "name": "Dileep BC",
+        "email": "dileepbc@example.com"
+      },
+      "keywords": ["devrev", "adaas", "connector", "code-review", "airsync"],
+      "category": "code-review",
+      "homepage": "https://github.com/dileepc-hash/adaas-claude-plugins",
+      "repository": "https://github.com/dileepc-hash/adaas-claude-plugins",
+      "license": "MIT"
+    }
+  ]
+}
