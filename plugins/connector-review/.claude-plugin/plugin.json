@@ -1,5 +1,5 @@
 {
   "name": "connector-review",
   "description": "Review ADaaS connector PR review.",
-  "version": "0.1.0"
+  "version": "0.1.1"
 }
