@@ -105,25 +105,17 @@ The detection file also includes a runnable bash script that checks all patterns
 
 ### CRITICAL Issues ❌
 
-C1: [issue] (line X)
-Problem: [explanation]
-Fix: [specific fix with code]
-Reference: [KB section]
+    [issue] (line X)
+    Problem: [explanation]
+    Fix: [specific fix with code]
 
 ### HIGH Priority Issues ⚠️
 
-[issues]
+    [issues]
 
 ### MEDIUM Priority Issues ℹ️
 
-[issues]
-
-### Summary
-
-✅ PASSED: X checks
-❌ CRITICAL: X issues (MUST FIX)
-⚠️ HIGH: X issues (RECOMMENDED)
-ℹ️ MEDIUM: X issues (OPTIONAL)
+    [issues]
 ```
 
 ## Key Enforcement Rules

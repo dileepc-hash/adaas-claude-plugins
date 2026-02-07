@@ -67,22 +67,15 @@ Validates `manifest.yaml` files for DevRev connectors.
 ## File: manifest.yaml
 
 ### CRITICAL Issues ❌
-C6: [issue] (line X)
+   [issue] (line X)
    Problem: [explanation]
    Fix: [specific fix with code]
-   Reference: [KB section]
 
 ### HIGH Priority Issues ⚠️
-[issues]
+   [issues]
 
 ### MEDIUM Priority Issues ℹ️
-[issues]
-
-### Summary
-✅ PASSED: X checks
-❌ CRITICAL: X issues (MUST FIX)
-⚠️  HIGH: X issues (RECOMMENDED)
-ℹ️  MEDIUM: X issues (OPTIONAL)
+   [issues]
 ```
 
 ### 5. Implementation Check (If Applicable)
