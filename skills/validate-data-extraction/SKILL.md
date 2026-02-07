@@ -29,10 +29,10 @@ find . -path "*/functions/extraction/index.ts" 2>/dev/null
 
 **MUST read these KB files in order:**
 
-1. `${CLAUDE_PLUGIN_ROOT}/skills/validate-data-extraction/kb/data-extraction.md` - Primary validation rules
-2. `${CLAUDE_PLUGIN_ROOT}/skills/validate-data-extraction/kb/state-management.md` - State pattern requirements
-3. `${CLAUDE_PLUGIN_ROOT}/skills/validate-data-extraction/kb/common-anti-patterns.md` - Quick detection patterns
-4. `${CLAUDE_PLUGIN_ROOT}/skills/validate-data-extraction/kb/anti-pattern-detection.md` - Automated grep patterns
+1. `${CLAUDE_PLUGIN_ROOT}/skills/validate-data-extraction/references/data-extraction.md` - Primary validation rules
+2. `${CLAUDE_PLUGIN_ROOT}/skills/validate-data-extraction/references/state-management.md` - State pattern requirements
+3. `${CLAUDE_PLUGIN_ROOT}/skills/validate-data-extraction/references/common-anti-patterns.md` - Quick detection patterns
+4. `${CLAUDE_PLUGIN_ROOT}/skills/validate-data-extraction/references/anti-pattern-detection.md` - Automated grep patterns
 
 ### 3. Execute Validation
 
@@ -76,14 +76,17 @@ Run checks in priority order: CRITICAL → HIGH → MEDIUM
 ### 4. Anti-Pattern Detection (Automated)
 
 Load and execute detection patterns from:
-- `${CLAUDE_PLUGIN_ROOT}/skills/validate-data-extraction/kb/anti-pattern-detection.md`
+
+- `${CLAUDE_PLUGIN_ROOT}/skills/validate-data-extraction/references/anti-pattern-detection.md`
 
 Run the Quick Detection Script to identify:
+
 - **6 CRITICAL patterns** (AP-C1, C3a, C3b, C4, C6, C9) - Must fix before deployment
 - **5 HIGH priority patterns** (AP-H1, H9a, H9b, H9c, H9d, H9e) - Strongly recommended
 - **1 MEDIUM pattern** (AP-M1) - Optional improvement
 
 Each pattern includes:
+
 - Grep command for automated detection
 - Violation example showing incorrect code
 - Fix example showing correct implementation
@@ -101,22 +104,26 @@ The detection file also includes a runnable bash script that checks all patterns
 ## File: functions/extraction/workers/data-extraction.ts
 
 ### CRITICAL Issues ❌
+
 C1: [issue] (line X)
-   Problem: [explanation]
-   Fix: [specific fix with code]
-   Reference: [KB section]
+Problem: [explanation]
+Fix: [specific fix with code]
+Reference: [KB section]
 
 ### HIGH Priority Issues ⚠️
+
 [issues]
 
 ### MEDIUM Priority Issues ℹ️
+
 [issues]
 
 ### Summary
+
 ✅ PASSED: X checks
 ❌ CRITICAL: X issues (MUST FIX)
-⚠️  HIGH: X issues (RECOMMENDED)
-ℹ️  MEDIUM: X issues (OPTIONAL)
+⚠️ HIGH: X issues (RECOMMENDED)
+ℹ️ MEDIUM: X issues (OPTIONAL)
 ```
 
 ## Key Enforcement Rules
@@ -137,5 +144,8 @@ This skill may recommend other validators:
 
 ## References
 
-All rules: `${CLAUDE_PLUGIN_ROOT}/skills/validate-data-extraction/kb/`
+All rules: `${CLAUDE_PLUGIN_ROOT}/skills/validate-data-extraction/references/`
+
+```
+
 ```

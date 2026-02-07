@@ -29,9 +29,9 @@ find . -path "*/functions/extraction/index.ts" 2>/dev/null
 
 **MUST read these KB files in order:**
 
-1. `${CLAUDE_PLUGIN_ROOT}/skills/validate-attachment-extraction/kb/attachment-extraction.md` - Primary validation rules
-2. `${CLAUDE_PLUGIN_ROOT}/skills/validate-attachment-extraction/kb/common-anti-patterns.md` - Quick detection patterns
-3. `${CLAUDE_PLUGIN_ROOT}/skills/validate-attachment-extraction/kb/anti-pattern-detection.md` - Automated grep patterns
+1. `${CLAUDE_PLUGIN_ROOT}/skills/validate-attachment-extraction/references/attachment-extraction.md` - Primary validation rules
+2. `${CLAUDE_PLUGIN_ROOT}/skills/validate-attachment-extraction/references/common-anti-patterns.md` - Quick detection patterns
+3. `${CLAUDE_PLUGIN_ROOT}/skills/validate-attachment-extraction/references/anti-pattern-detection.md` - Automated grep patterns
 
 ### 3. Execute Validation
 
@@ -69,14 +69,17 @@ Run checks in priority order: CRITICAL → HIGH → MEDIUM
 ### 4. Anti-Pattern Detection (Automated)
 
 Load and execute detection patterns from:
-- `${CLAUDE_PLUGIN_ROOT}/skills/validate-attachment-extraction/kb/anti-pattern-detection.md`
+
+- `${CLAUDE_PLUGIN_ROOT}/skills/validate-attachment-extraction/references/anti-pattern-detection.md`
 
 Run the Quick Detection Script to identify:
+
 - **7 CRITICAL patterns** (AP-C1-C7) - Must fix before deployment
 - **4 HIGH priority patterns** (AP-H1-H4) - Strongly recommended
 - **1 MEDIUM pattern** (AP-M1) - Optional improvement
 
 Each pattern includes:
+
 - Grep command for automated detection
 - Violation example showing incorrect code
 - Fix example showing correct implementation
@@ -94,22 +97,26 @@ The detection file also includes a runnable bash script that checks all patterns
 ## File: functions/extraction/workers/attachment-extraction.ts
 
 ### CRITICAL Issues ❌
+
 C1: [issue] (line X)
-   Problem: [explanation]
-   Fix: [specific fix with code]
-   Reference: [KB section]
+Problem: [explanation]
+Fix: [specific fix with code]
+Reference: [KB section]
 
 ### HIGH Priority Issues ⚠️
+
 [issues]
 
 ### MEDIUM Priority Issues ℹ️
+
 [issues]
 
 ### Summary
+
 ✅ PASSED: X checks
 ❌ CRITICAL: X issues (MUST FIX)
-⚠️  HIGH: X issues (RECOMMENDED)
-ℹ️  MEDIUM: X issues (OPTIONAL)
+⚠️ HIGH: X issues (RECOMMENDED)
+ℹ️ MEDIUM: X issues (OPTIONAL)
 ```
 
 ## Key Enforcement Rules
@@ -123,15 +130,18 @@ C1: [issue] (line X)
 ## Common Critical Issues
 
 ### Memory Overflow Issues (Top Priority)
+
 - **C5**: Missing `responseType: 'stream'` → Files buffered in memory → Lambda crashes
 - **C7**: Batch size >50 → Too many concurrent streams → Memory overflow
 - **C10/H1**: Logging full error objects → Memory overflow on large syncs
 
 ### State Inconsistency Issues
+
 - **C4**: Multiple emit calls → State becomes inconsistent
 - **C6**: Missing onTimeout → Lambda timeout without graceful exit
 
 ### API Stability Issues
+
 - **C9**: No 429 handling → Permanent failures on rate limits
 - **H2**: No timeout handling → Lost attachments on transient failures
 
@@ -145,5 +155,8 @@ This skill may recommend other validators:
 
 ## References
 
-All rules: `${CLAUDE_PLUGIN_ROOT}/skills/validate-attachment-extraction/kb/`
+All rules: `${CLAUDE_PLUGIN_ROOT}/skills/validate-attachment-extraction/references/`
+
+```
+
 ```

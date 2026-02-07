@@ -20,13 +20,13 @@ Validates `manifest.yaml` files for DevRev connectors.
 
 **MUST read this first:**
 
-- `${CLAUDE_PLUGIN_ROOT}/skills/manifest-validator/kb/connector-manifest/validation-rules.md`
+- `${CLAUDE_PLUGIN_ROOT}/skills/manifest-validator/references/connector-manifest/validation-rules.md`
 
 **Reference as needed:**
 
-- `${CLAUDE_PLUGIN_ROOT}/skills/manifest-validator/kb/connector-manifest/anti-patterns.md`
-- `${CLAUDE_PLUGIN_ROOT}/skills/manifest-validator/kb/connector-manifest/auth-patterns.md`
-- `${CLAUDE_PLUGIN_ROOT}/skills/manifest-validator/kb/connector-manifest/config-patterns.md`
+- `${CLAUDE_PLUGIN_ROOT}/skills/manifest-validator/references/connector-manifest/anti-patterns.md`
+- `${CLAUDE_PLUGIN_ROOT}/skills/manifest-validator/references/connector-manifest/auth-patterns.md`
+- `${CLAUDE_PLUGIN_ROOT}/skills/manifest-validator/references/connector-manifest/config-patterns.md`
 
 ### 3. Execute Validation
 
@@ -99,4 +99,4 @@ If TIME_SCOPED_SYNCS found, ask: "Validate code implementation?"
 
 ## References
 
-All rules: `${CLAUDE_PLUGIN_ROOT}/kb/connector-manifest/validation-rules.md`
+All rules: `${CLAUDE_PLUGIN_ROOT}/references/connector-manifest/validation-rules.md`
