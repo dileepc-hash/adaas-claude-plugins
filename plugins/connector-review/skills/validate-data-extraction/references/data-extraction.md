@@ -1,1 +1,1 @@
-../../../../references/03-data-extraction.md
+../../../../../../.claude/references/03-data-extraction.md

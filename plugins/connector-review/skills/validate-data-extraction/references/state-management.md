@@ -1,1 +1,1 @@
-../../../../references/10-state-management.md
+../../../../../../.claude/references/10-state-management.md

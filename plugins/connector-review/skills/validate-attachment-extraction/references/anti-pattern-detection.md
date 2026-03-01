@@ -72,30 +72,30 @@ echo "❌ CRITICAL: $CRIT (MUST FIX) | ⚠️  HIGH: $HIGH (RECOMMENDED) | ℹ�
 
 ### CRITICAL Patterns (Must Fix Before Deployment)
 
-| ID         | Pattern                                     | Issue                        | Fix                                                | Impact                          |
-| ---------- | ------------------------------------------- | ---------------------------- | -------------------------------------------------- | ------------------------------- |
-| **AP-C1**  | `! grep -q "responseType.*stream" FILE`     | No streaming                 | Add `responseType: 'stream'`                       | Memory overflow from buffering  |
-| **AP-C2**  | `grep -c "\.emit(" FILE` (>2)               | Multiple emissions           | Single emit per execution path                     | State inconsistency             |
-| **AP-C3**  | `grep "batchSize.*[5-9][0-9]"`              | Batch size >50               | Set batchSize: 10-50                               | Memory overflow                 |
-| **AP-C4**  | `! grep -q "onTimeout:"`                    | Missing onTimeout            | Add onTimeout handler                              | Timeout without graceful exit   |
-| **AP-C5**  | `! grep -q "429"`                           | No rate limit handling       | Detect 429, return { delay }                       | Permanent failures on rate limits |
-| **AP-C6**  | `! grep -q "processTask"`                   | Not using processTask        | Use processTask pattern                            | SDK protocol violation          |
-| **AP-C7**  | `! grep -q "streamAttachments"`             | Not using streamAttachments  | Use adapter.streamAttachments()                    | Missing streaming functionality |
+| ID        | Pattern                                 | Issue                       | Fix                             | Impact                            |
+| --------- | --------------------------------------- | --------------------------- | ------------------------------- | --------------------------------- |
+| **AP-C1** | `! grep -q "responseType.*stream" FILE` | No streaming                | Add `responseType: 'stream'`    | Memory overflow from buffering    |
+| **AP-C2** | `grep -c "\.emit(" FILE` (>2)           | Multiple emissions          | Single emit per execution path  | State inconsistency               |
+| **AP-C3** | `grep "batchSize.*[5-9][0-9]"`          | Batch size >50              | Set batchSize: 10-50            | Memory overflow                   |
+| **AP-C4** | `! grep -q "onTimeout:"`                | Missing onTimeout           | Add onTimeout handler           | Timeout without graceful exit     |
+| **AP-C5** | `! grep -q "429"`                       | No rate limit handling      | Detect 429, return { delay }    | Permanent failures on rate limits |
+| **AP-C6** | `! grep -q "processTask"`               | Not using processTask       | Use processTask pattern         | SDK protocol violation            |
+| **AP-C7** | `! grep -q "streamAttachments"`         | Not using streamAttachments | Use adapter.streamAttachments() | Missing streaming functionality   |
 
 ### HIGH Priority Patterns (Strongly Recommended)
 
-| ID        | Pattern                              | Issue                     | Fix                                  | Impact                             |
-| --------- | ------------------------------------ | ------------------------- | ------------------------------------ | ---------------------------------- |
-| **AP-H1** | `grep "JSON\.stringify.*error"`      | Logging full error objects | Return error message only            | Memory overflow on large syncs     |
-| **AP-H2** | `! grep -q "timeout.*[0-9]"`         | No timeout config         | Add timeout: 30000                   | Hangs without timeout              |
-| **AP-H3** | `! grep -q "ECONNABORTED"`           | No timeout error handling | Detect timeout, return { delay }     | Lost attachments on timeout        |
-| **AP-H4** | `! grep -q "Authorization"`          | No authentication         | Add auth headers                     | 401 errors                         |
+| ID        | Pattern                         | Issue                      | Fix                              | Impact                         |
+| --------- | ------------------------------- | -------------------------- | -------------------------------- | ------------------------------ |
+| **AP-H1** | `grep "JSON\.stringify.*error"` | Logging full error objects | Return error message only        | Memory overflow on large syncs |
+| **AP-H2** | `! grep -q "timeout.*[0-9]"`    | No timeout config          | Add timeout: 30000               | Hangs without timeout          |
+| **AP-H3** | `! grep -q "ECONNABORTED"`      | No timeout error handling  | Detect timeout, return { delay } | Lost attachments on timeout    |
+| **AP-H4** | `! grep -q "Authorization"`     | No authentication          | Add auth headers                 | 401 errors                     |
 
 ### MEDIUM Priority Pattern (Optional)
 
-| ID        | Pattern                             | Issue                  | Fix                 | Impact            |
-| --------- | ----------------------------------- | ---------------------- | ------------------- | ----------------- |
-| **AP-M1** | `grep "batchSize.*[1-4][^0-9]"`     | Batch size too small   | Increase to 10+     | Slow performance  |
+| ID        | Pattern                         | Issue                | Fix             | Impact           |
+| --------- | ------------------------------- | -------------------- | --------------- | ---------------- |
+| **AP-M1** | `grep "batchSize.*[1-4][^0-9]"` | Batch size too small | Increase to 10+ | Slow performance |
 
 ---
 
@@ -110,7 +110,7 @@ return { httpStream: response };
 
 // ✅ CORRECT - Streams the file
 const response = await axios.get(item.url, {
-  responseType: 'stream',
+  responseType: "stream",
 });
 return { httpStream: response };
 ```
@@ -161,7 +161,10 @@ const response = await adapter.streamAttachments({
 // ❌ WRONG - No onTimeout
 return adapter.processTask({
   task: async ({ adapter }) => {
-    const response = await adapter.streamAttachments({ stream: getStream, batchSize: 10 });
+    const response = await adapter.streamAttachments({
+      stream: getStream,
+      batchSize: 10,
+    });
     // ... handle response
   },
 });
@@ -169,7 +172,10 @@ return adapter.processTask({
 // ✅ CORRECT - With onTimeout
 return adapter.processTask({
   task: async ({ adapter }) => {
-    const response = await adapter.streamAttachments({ stream: getStream, batchSize: 10 });
+    const response = await adapter.streamAttachments({
+      stream: getStream,
+      batchSize: 10,
+    });
     // ... handle response
   },
   onTimeout: async ({ adapter }) => {
@@ -187,7 +193,7 @@ return adapter.processTask({
 // ❌ WRONG - 429 treated as permanent error
 async function getAttachmentStream({ item }) {
   try {
-    const response = await axios.get(item.url, { responseType: 'stream' });
+    const response = await axios.get(item.url, { responseType: "stream" });
     return { httpStream: response };
   } catch (error) {
     return { error: { message: error.message } }; // 429 fails permanently!
@@ -197,11 +203,14 @@ async function getAttachmentStream({ item }) {
 // ✅ CORRECT - 429 triggers delay
 async function getAttachmentStream({ item }) {
   try {
-    const response = await axios.get(item.url, { responseType: 'stream' });
+    const response = await axios.get(item.url, { responseType: "stream" });
     return { httpStream: response };
   } catch (error) {
     if (error.response?.status === 429) {
-      const retryAfter = parseInt(error.response.headers['retry-after'] || '60', 10);
+      const retryAfter = parseInt(
+        error.response.headers["retry-after"] || "60",
+        10,
+      );
       return { delay: retryAfter }; // SDK will retry
     }
     return { error: { message: error.message } };
@@ -216,15 +225,15 @@ async function getAttachmentStream({ item }) {
 ```typescript
 // ❌ WRONG - Memory overflow risk
 try {
-  return { httpStream: await axios.get(url, { responseType: 'stream' }) };
+  return { httpStream: await axios.get(url, { responseType: "stream" }) };
 } catch (error) {
-  console.error('Error:', JSON.stringify(error)); // MEMORY OVERFLOW!
+  console.error("Error:", JSON.stringify(error)); // MEMORY OVERFLOW!
   return { error: { message: error.message } };
 }
 
 // ✅ CORRECT - Return message only, no logging
 try {
-  return { httpStream: await axios.get(url, { responseType: 'stream' }) };
+  return { httpStream: await axios.get(url, { responseType: "stream" }) };
 } catch (error) {
   return { error: { message: `Failed to fetch ${item.id}: ${error.message}` } };
 }
@@ -237,12 +246,12 @@ try {
 ```typescript
 // ❌ WRONG - No timeout
 const response = await axios.get(item.url, {
-  responseType: 'stream',
+  responseType: "stream",
 });
 
 // ✅ CORRECT - Explicit timeout
 const response = await axios.get(item.url, {
-  responseType: 'stream',
+  responseType: "stream",
   timeout: 30 * 1000, // 30 seconds
 });
 ```
@@ -254,7 +263,10 @@ const response = await axios.get(item.url, {
 ```typescript
 // ❌ WRONG - Timeout treated as permanent error
 try {
-  const response = await axios.get(url, { responseType: 'stream', timeout: 30000 });
+  const response = await axios.get(url, {
+    responseType: "stream",
+    timeout: 30000,
+  });
   return { httpStream: response };
 } catch (error) {
   return { error: { message: error.message } }; // Timeout = permanent failure!
@@ -262,10 +274,13 @@ try {
 
 // ✅ CORRECT - Retry on timeout
 try {
-  const response = await axios.get(url, { responseType: 'stream', timeout: 30000 });
+  const response = await axios.get(url, {
+    responseType: "stream",
+    timeout: 30000,
+  });
   return { httpStream: response };
 } catch (error) {
-  if (error.code === 'ECONNABORTED' || error.message?.includes('timeout')) {
+  if (error.code === "ECONNABORTED" || error.message?.includes("timeout")) {
     console.warn(`Timeout fetching attachment ${item.id}, will retry`);
     return { delay: 10 }; // Retry after 10 seconds
   }
@@ -281,7 +296,7 @@ try {
 // ❌ WRONG - No authentication
 async function getAttachmentStream({ item }) {
   const response = await axios.get(item.url, {
-    responseType: 'stream',
+    responseType: "stream",
   });
   return { httpStream: response };
 }
@@ -289,10 +304,10 @@ async function getAttachmentStream({ item }) {
 // ✅ CORRECT - Include authentication
 async function getAttachmentStream({ item, event }) {
   const response = await axios.get(item.url, {
-    responseType: 'stream',
+    responseType: "stream",
     headers: {
       Authorization: `Bearer ${event.payload.connection_data.key}`,
-      'Accept-Encoding': 'identity',
+      "Accept-Encoding": "identity",
     },
   });
   return { httpStream: response };
@@ -308,15 +323,18 @@ async function getAttachmentStream({ item, event }) {
 Some patterns cannot be detected with grep:
 
 **Stream Function Return Type:**
+
 - C3: Verify stream function returns `{ httpStream }` OR `{ error }` (never both)
 - Check for proper error object structure
 
 **Error Handling:**
+
 - C8: Try/catch around all stream operations
 - H5: 4xx errors emit Error immediately (not retried)
 - H6: 5xx errors logged with warning and retried
 
 **State Management:**
+
 - M2: State posted before timeout emit
 - M3: Progress percentage tracked in state
 
@@ -337,15 +355,15 @@ const r = await adapter.streamAttachments({ batchSize: 100 }); // AP-C3: Batch >
 **Test HIGH logging patterns:**
 
 ```typescript
-console.error('Error:', JSON.stringify(error)); // AP-H1
-const r = await axios.get(url, { responseType: 'stream' }); // AP-H2: No timeout
+console.error("Error:", JSON.stringify(error)); // AP-H1
+const r = await axios.get(url, { responseType: "stream" }); // AP-H2: No timeout
 ```
 
 **Valid patterns (no false positives):**
 
 ```typescript
 const response = await axios.get(url, {
-  responseType: 'stream',
+  responseType: "stream",
   timeout: 30000,
   headers: { Authorization: `Bearer ${token}` },
 });

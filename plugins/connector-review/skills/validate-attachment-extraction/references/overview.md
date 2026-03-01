@@ -18,16 +18,16 @@ Attachment extraction is the phase where connectors download files from external
 
 ## Critical Checks Quick Reference
 
-| Check | Issue                                    | Detection                           | Impact                       |
-| ----- | ---------------------------------------- | ----------------------------------- | ---------------------------- |
-| **C1** | Not using `processTask`                 | Missing `processTask`                | SDK protocol violation       |
-| **C2** | Not using `streamAttachments()`         | Missing `streamAttachments`          | Core functionality missing   |
-| **C5** | No streaming (buffering files)          | Missing `responseType: 'stream'`     | **Memory overflow**          |
-| **C7** | Batch size >50                          | `batchSize` >50                      | **Memory overflow**          |
-| **C10** | Logging full error objects              | `JSON.stringify(error)`              | **Memory overflow**          |
-| **C4** | Multiple message emissions              | >2 emit calls                        | State inconsistency          |
-| **C6** | Missing onTimeout                       | No `onTimeout` handler               | Crashes on timeout           |
-| **C9** | No rate limit handling                  | Missing 429 detection                | Permanent failures           |
+| Check   | Issue                           | Detection                        | Impact                     |
+| ------- | ------------------------------- | -------------------------------- | -------------------------- |
+| **C1**  | Not using `processTask`         | Missing `processTask`            | SDK protocol violation     |
+| **C2**  | Not using `streamAttachments()` | Missing `streamAttachments`      | Core functionality missing |
+| **C5**  | No streaming (buffering files)  | Missing `responseType: 'stream'` | **Memory overflow**        |
+| **C7**  | Batch size >50                  | `batchSize` >50                  | **Memory overflow**        |
+| **C10** | Logging full error objects      | `JSON.stringify(error)`          | **Memory overflow**        |
+| **C4**  | Multiple message emissions      | >2 emit calls                    | State inconsistency        |
+| **C6**  | Missing onTimeout               | No `onTimeout` handler           | Crashes on timeout         |
+| **C9**  | No rate limit handling          | Missing 429 detection            | Permanent failures         |
 
 ## Validation Tiers
 
@@ -36,30 +36,26 @@ Attachment extraction is the phase where connectors download files from external
 **Must all pass.** Violations cause crashes, memory overflow, or data loss.
 
 **Top 3 Memory Risks:**
+
 1. C5: No streaming (buffers entire files)
 2. C7: Batch size >50 (too many concurrent streams)
 3. C10: Logging full errors (memory overflow on large syncs)
 
-**Top 3 Stability Risks:**
-4. C4: Multiple emissions (state inconsistency)
-5. C6: Missing onTimeout (crash on timeout)
-6. C9: No 429 handling (permanent API failures)
+**Top 3 Stability Risks:** 4. C4: Multiple emissions (state inconsistency) 5. C6: Missing onTimeout (crash on timeout) 6. C9: No 429 handling (permanent API failures)
 
-**Other Critical:**
-7. C1: Must use processTask
-8. C2: Must use streamAttachments
-9. C3: Stream function return type
-10. C8: Try/catch coverage
+**Other Critical:** 7. C1: Must use processTask 8. C2: Must use streamAttachments 9. C3: Stream function return type 10. C8: Try/catch coverage
 
 ### HIGH (7 checks)
 
 **Strongly recommended.** Issues cause failures under load, security risks, or operational problems.
 
 **Timeout Management:**
+
 - H1: Explicit timeout configuration (30s typical)
 - H2: Timeout error handling with retry (ECONNABORTED)
 
 **Security & Reliability:**
+
 - H3: Authentication headers
 - H4: Accept-Encoding: identity
 - H5: 4xx errors emit Error immediately
@@ -143,15 +139,15 @@ Attachment extraction is the phase where connectors download files from external
 
 ## Comparison: Data Extraction vs Attachment Extraction
 
-| Aspect                  | Data Extraction                        | Attachment Extraction                |
-| ----------------------- | -------------------------------------- | ------------------------------------ |
-| **Core Method**         | Custom pagination logic                | `adapter.streamAttachments()`        |
-| **Memory Risk**         | State accumulation                     | **File buffering (CRITICAL)**        |
-| **Batch Control**       | Not typically used                     | **Critical (5-50)**                  |
-| **Streaming**           | Optional                               | **Required (responseType: 'stream')** |
-| **Error Tolerance**     | Partial success acceptable             | Individual file failures OK          |
-| **Timeout Impact**      | May involve API pagination             | File download limited by timeout     |
-| **Common Issue**        | Progress with parameters               | **Memory overflow from buffering**   |
+| Aspect              | Data Extraction            | Attachment Extraction                 |
+| ------------------- | -------------------------- | ------------------------------------- |
+| **Core Method**     | Custom pagination logic    | `adapter.streamAttachments()`         |
+| **Memory Risk**     | State accumulation         | **File buffering (CRITICAL)**         |
+| **Batch Control**   | Not typically used         | **Critical (5-50)**                   |
+| **Streaming**       | Optional                   | **Required (responseType: 'stream')** |
+| **Error Tolerance** | Partial success acceptable | Individual file failures OK           |
+| **Timeout Impact**  | May involve API pagination | File download limited by timeout      |
+| **Common Issue**    | Progress with parameters   | **Memory overflow from buffering**    |
 
 ## Integration with Other Skills
 
