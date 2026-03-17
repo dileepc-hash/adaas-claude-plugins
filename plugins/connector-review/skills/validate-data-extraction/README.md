@@ -26,6 +26,7 @@ skills/validate-data-extraction/
 ### Validation Coverage
 
 **CRITICAL Checks (14):**
+
 - C1: Progress events have NO parameters (most frequent violation)
 - C2: Uses `processTask<ExtractorState>` pattern
 - C3: Checks `adapter.isTimeout` in loops
@@ -42,6 +43,7 @@ skills/validate-data-extraction/
 - C14: Provides `initialDomainMapping` to spawn()
 
 **HIGH Priority Checks (9):**
+
 - H1: Rate limiting with Delay event
 - H2: Pagination with reasonable batch sizes (50-100)
 - H3: TIME_SCOPED_SYNCS support (extract_from/reset_extract_from)
@@ -53,6 +55,7 @@ skills/validate-data-extraction/
 - H9: No PII in logs
 
 **MEDIUM Priority Checks (3):**
+
 - M1: Configurable batch sizes
 - M2: Extraction statistics
 - M3: Parallel extraction
@@ -60,6 +63,7 @@ skills/validate-data-extraction/
 ### Anti-Pattern Detection
 
 Automated grep patterns detect:
+
 - Progress with parameters (C1)
 - Missing timeout checks (C3)
 - Multiple emissions (C4)
@@ -74,11 +78,13 @@ Automated grep patterns detect:
 ### Invocation Methods
 
 **1. Slash Command:**
+
 ```
 /validate-data-extraction path/to/data-extraction.ts
 ```
 
 **2. Natural Language:**
+
 - "review data extraction"
 - "validate data extraction implementation"
 - "check extraction phase"
@@ -87,6 +93,7 @@ Automated grep patterns detect:
 
 **3. Auto-Discovery:**
 If no path provided, automatically finds:
+
 - `**/functions/extraction/workers/data-extraction.ts`
 - `**/functions/extraction/index.ts`
 
@@ -111,15 +118,19 @@ If no path provided, automatically finds:
 ## File: functions/extraction/workers/data-extraction.ts
 
 ### CRITICAL Issues ❌
+
 [Issues with line numbers, fixes, KB references]
 
 ### HIGH Priority Issues ⚠️
+
 [Issues with line numbers, fixes, KB references]
 
 ### MEDIUM Priority Issues ℹ️
+
 [Issues with line numbers, fixes, KB references]
 
 ### Summary
+
 ✅ PASSED: X checks
 ❌ CRITICAL: X issues (MUST FIX before deployment)
 ⚠️ HIGH: X issues (RECOMMENDED fix)
@@ -152,6 +163,7 @@ The skill uses symbolic links to maintain a single source of truth:
 ### Test Files Available
 
 Sample connector implementations:
+
 ```
 /Users/dileepbc/code-base/platform/connectors/adaas-connectors/airdrop-sharepoint-tcc-global-snap-in/code/src/functions/extraction/workers/data-extraction.ts
 /Users/dileepbc/code-base/platform/connectors/adaas-connectors/airdrop-devrev-snap-in/code/src/functions/extraction/workers/data-extraction.ts
@@ -161,22 +173,27 @@ Sample connector implementations:
 ### Manual Test Cases
 
 **Test 1: Valid Implementation**
+
 - Run against well-structured connector
 - Expected: All checks pass, no issues
 
 **Test 2: Critical Violation (Progress with Parameters)**
+
 - Find `emit(DataExtractionProgress, { ... })`
 - Expected: C1 violation reported with line number
 
 **Test 3: Missing Timeout Handling**
+
 - Find loop without `adapter.isTimeout`
 - Expected: C3 violation with specific fix
 
 **Test 4: TIME_SCOPED_SYNCS Gap**
+
 - Connector with capability but no extract_from handling
 - Expected: H3 violation with implementation guide
 
 **Test 5: PII in Logs**
+
 - Find `console.log` with user data
 - Expected: H9 violation with security warning
 
@@ -193,13 +210,14 @@ allowed-tools: Read, Bash(*), Grep, Glob
 ```
 
 - **Read**: Load KB files and target source files
-- **Bash(*)**: Run grep patterns for anti-pattern detection, find files
+- **Bash(\*)**: Run grep patterns for anti-pattern detection, find files
 - **Grep**: Search for specific patterns in code
 - **Glob**: Find data-extraction.ts files by pattern
 
 ### Cross-References
 
 Skill may recommend:
+
 - `validate-manifest` - For TIME_SCOPED_SYNCS capability verification
 - `validate-http-security` - For rate limiting and HTTP client issues
 - `validate-state-error-handling` - For complex state management
@@ -209,6 +227,7 @@ Skill may recommend:
 This skill serves as a **template for 7 additional skills**:
 
 ### Phase-Specific Skills
+
 1. ✅ **validate-data-extraction** (this skill)
 2. ⬜ **validate-metadata-extraction** - Schema definition validation
 3. ⬜ **validate-data-loading** - 2-way sync implementation
@@ -216,6 +235,7 @@ This skill serves as a **template for 7 additional skills**:
 5. ⬜ **validate-external-sync-units** - Sync boundary validation
 
 ### Cross-Cutting Skills
+
 1. ⬜ **validate-http-security** - HTTP client + security checklist
 2. ⬜ **validate-state-error-handling** - State + error patterns
 
@@ -237,29 +257,35 @@ To create a new skill following this pattern:
 ## Design Decisions
 
 ### Symbolic Links vs Copy
+
 **Decision:** Use symbolic links
 **Rationale:** Single source of truth, automatic updates, no duplication
 **Trade-off:** Requires symlink support (works on macOS/Linux)
 
 ### Auto-Discovery vs Explicit Paths
+
 **Decision:** Support both
 **Rationale:** Convenience for quick reviews, precision for specific files
 
 ### Grep-Based Anti-Pattern Detection
+
 **Decision:** Include explicit grep patterns
 **Rationale:** Fast detection, complements manual validation, provides line numbers
 
 ### KB Organization
+
 **Decision:** Minimal skill-specific KB (overview.md), symlink to comprehensive references
 **Rationale:** Avoid duplication, leverage existing comprehensive guides
 
 ### Validation Execution Order
+
 **Decision:** CRITICAL → HIGH → MEDIUM (fail-fast)
 **Rationale:** Prioritizes blockers, saves review time, matches manifest-validator
 
 ## Success Criteria
 
 ### Functional ✅
+
 - Skill auto-discovers data-extraction.ts files
 - Detects all 14 CRITICAL issues
 - Detects all 9 HIGH issues
@@ -268,17 +294,20 @@ To create a new skill following this pattern:
 - Output format matches manifest-validator pattern
 
 ### Quality ✅
+
 - No false positives expected (validation rules are comprehensive)
 - Line numbers guide precise fixes
 - Fixes are actionable (copy-pasteable)
 - KB references resolve correctly via symlinks
 
 ### Performance ✅
+
 - Symlinks resolve instantly
 - KB files load quickly (under 1MB total)
 - Grep patterns are efficient
 
 ### Usability ✅
+
 - Natural language triggers work
 - Can be invoked with or without file path
 - Output is readable and scannable
@@ -289,6 +318,7 @@ To create a new skill following this pattern:
 ### Updating Validation Rules
 
 To update validation rules:
+
 1. Edit `/references/03-data-extraction.md` (single source of truth)
 2. Symlinks automatically reflect changes
 3. No need to update skill KB files
@@ -296,6 +326,7 @@ To update validation rules:
 ### Adding New Checks
 
 To add new validation checks:
+
 1. Add check to `/references/03-data-extraction.md`
 2. Update `SKILL.md` workflow with new check ID
 3. Add grep pattern if auto-detectable

@@ -1,1 +1,1 @@
-../../../../references/common-anti-patterns.md
+../../../../../../.claude/references/common-anti-patterns.md

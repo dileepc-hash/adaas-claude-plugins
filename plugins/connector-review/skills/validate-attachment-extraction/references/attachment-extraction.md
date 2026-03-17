@@ -1,1 +1,1 @@
-../../../../references/04-attachments-extraction.md
+../../../../../../.claude/references/04-attachments-extraction.md
